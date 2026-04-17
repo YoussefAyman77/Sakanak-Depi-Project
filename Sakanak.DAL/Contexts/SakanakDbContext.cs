@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Sakanak.DAL.Contexts
 {
-    internal class SakanakDbContext : DbContext
+    public class SakanakDbContext : DbContext
     {
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
