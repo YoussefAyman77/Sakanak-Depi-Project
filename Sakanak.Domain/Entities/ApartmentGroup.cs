@@ -1,23 +1,14 @@
-﻿using Sakanak.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Sakanak.Domain.Enums;
 
-namespace Sakanak.Domain.Entities
+namespace Sakanak.Domain.Entities;
+
+public class ApartmentGroup
 {
-    public class ApartmentGroup
-    {
-        public int GroupID { get; set; }
-        public int ApartmentID { get; set; }
-        public int CurrentMembers { get; set; }
-        public int MaxMembers { get; set; }
-        public GroupStatus GroupStatus { get; set; }
-
-        // Navigation Properties
-        public Apartment Apartment { get; set; } = null!;
-        public ICollection<Student> Students { get; set; } = new List<Student>();
-        public Chat? Chat { get; set; }
-    }
+    public int GroupId { get; set; }
+    public int ApartmentId { get; set; }
+    public int MaxMembers { get; set; }
+    public GroupStatus GroupStatus { get; set; }
+    public Apartment Apartment { get; set; } = null!;
+    public ICollection<Student> Students { get; set; } = new List<Student>();
+    public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
 }

@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace Sakanak.Domain.Enums;
 
-namespace Sakanak.Domain.Enums
+public enum GroupStatus
 {
-    public enum GroupStatus
-    {
-        Open,
-        Full,
-        Closed
-    }
+    Open,
+    Full,
+    Closed
 }

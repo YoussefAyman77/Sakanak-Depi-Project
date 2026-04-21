@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace Sakanak.Domain.Enums;
 
-namespace Sakanak.Domain.Enums
+public enum ContractStatus
 {
-    public enum ContractStatus
-    {
-        Draft,
-        PendingSignature,
-        Active,
-        Expired,
-        Terminated
-    }
+    Draft,
+    PendingApproval,
+    Active,
+    Rejected,
+    Expired,
+    Terminated
 }

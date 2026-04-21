@@ -1,41 +1,50 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Sakanak.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Sakanak.DAL.Configurations
+namespace Sakanak.DAL.Configurations;
+
+public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
 {
-    public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
+    public void Configure(EntityTypeBuilder<Payment> builder)
     {
-        public void Configure(EntityTypeBuilder<Payment> builder)
-        {
-            builder.HasKey(p => p.PaymentID);
+        builder.HasKey(e => e.PaymentId);
 
-            builder.Property(p => p.Amount)
-                .HasColumnType("decimal(18,2)")
-                .IsRequired();
+        builder.Property(e => e.Amount)
+            .HasColumnType("decimal(18,2)")
+            .IsRequired();
 
-            builder.Property(p => p.PaymentDate)
-                .IsRequired();
+        builder.Property(e => e.DueDate)
+            .IsRequired();
 
-            builder.Property(p => p.PaymentStatus)
-                .HasConversion<string>()
-                .IsRequired();
+        builder.Property(e => e.Status)
+            .HasConversion<string>()
+            .HasMaxLength(50)
+            .IsRequired();
 
-            // Relationships
-            builder.HasOne(p => p.Student)
-                .WithMany(s => s.Payments)
-                .HasForeignKey(p => p.StudentID)
-                .OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(e => new { e.StudentId, e.Status });
+        builder.HasIndex(e => new { e.LandlordId, e.Status });
+        builder.HasIndex(e => e.ContractId);
+        builder.HasIndex(e => new { e.DueDate, e.Status });
 
-            builder.HasOne(p => p.Landlord)
-                .WithMany(l => l.PaymentsReceived)
-                .HasForeignKey(p => p.LandlordID)
-                .OnDelete(DeleteBehavior.Restrict);
-        }
+        builder.HasOne(e => e.Student)
+            .WithMany(e => e.Payments)
+            .HasForeignKey(e => e.StudentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(e => e.Landlord)
+            .WithMany(e => e.Payments)
+            .HasForeignKey(e => e.LandlordId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(e => e.Apartment)
+            .WithMany()
+            .HasForeignKey(e => e.ApartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(e => e.Contract)
+            .WithMany(e => e.Payments)
+            .HasForeignKey(e => e.ContractId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

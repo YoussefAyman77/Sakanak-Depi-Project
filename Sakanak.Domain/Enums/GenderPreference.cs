@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace Sakanak.Domain.Enums;
 
-namespace Sakanak.Domain.Enums
+public enum GenderPreference
 {
-    public enum GenderPreference
-    {
-        Male,
-        Female,
-        NoPreference
-    }
+    Male,
+    Female,
+    NoPreference
 }

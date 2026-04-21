@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace Sakanak.Domain.Enums;
 
-namespace Sakanak.Domain.Enums
+public enum SocialPreference
 {
-    public enum SocialPreference
-    {
-        Introvert,
-        Extrovert,
-        Ambivert
-    }
+    Introvert,
+    Extrovert,
+    Ambivert
 }

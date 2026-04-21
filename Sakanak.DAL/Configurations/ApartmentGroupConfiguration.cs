@@ -1,45 +1,29 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Sakanak.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Sakanak.Domain.Enums;
 
-namespace Sakanak.DAL.Configurations
+namespace Sakanak.DAL.Configurations;
+
+public class ApartmentGroupConfiguration : IEntityTypeConfiguration<ApartmentGroup>
 {
-    public class ApartmentGroupConfiguration : IEntityTypeConfiguration<ApartmentGroup>
+    public void Configure(EntityTypeBuilder<ApartmentGroup> builder)
     {
-        public void Configure(EntityTypeBuilder<ApartmentGroup> builder)
-        {
-            builder.HasKey(ag => ag.GroupID);
+        builder.HasKey(e => e.GroupId);
 
-            builder.Property(ag => ag.CurrentMembers)
-                .HasDefaultValue(0);
+        builder.Property(e => e.GroupStatus)
+            .HasConversion<string>()
+            .HasMaxLength(50)
+            .IsRequired();
 
-            builder.Property(ag => ag.MaxMembers)
-                .IsRequired();
+        builder.HasIndex(e => e.ApartmentId);
+        builder.HasIndex(e => new { e.ApartmentId, e.GroupStatus })
+            .HasFilter($"[{nameof(ApartmentGroup.GroupStatus)}] = '{GroupStatus.Open}'")
+            .IsUnique();
 
-            builder.Property(ag => ag.GroupStatus)
-                .HasConversion<string>()
-                .IsRequired();
-
-            // Relationships
-            builder.HasOne(ag => ag.Apartment)
-                .WithOne(a => a.ApartmentGroup)
-                .HasForeignKey<ApartmentGroup>(ag => ag.ApartmentID)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.HasMany(ag => ag.Students)
-                .WithOne(s => s.ApartmentGroup)
-                .HasForeignKey(s => s.ApartmentGroupID)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            builder.HasOne(ag => ag.Chat)
-                .WithOne(c => c.ApartmentGroup)
-                .HasForeignKey<Chat>(c => c.ApartmentGroupID)
-                .OnDelete(DeleteBehavior.Restrict);
-        }
+        builder.HasOne(e => e.Apartment)
+            .WithMany(e => e.ApartmentGroups)
+            .HasForeignKey(e => e.ApartmentId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

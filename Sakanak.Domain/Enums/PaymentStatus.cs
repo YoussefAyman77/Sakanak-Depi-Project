@@ -1,16 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+namespace Sakanak.Domain.Enums;
 
-namespace Sakanak.Domain.Enums
+public enum PaymentStatus
 {
-    public enum PaymentStatus
-    {
-        Pending,
-        Paid,
-        Late,
-        Refunded
-    }
+    Pending,
+    Paid,
+    Refunded
 }

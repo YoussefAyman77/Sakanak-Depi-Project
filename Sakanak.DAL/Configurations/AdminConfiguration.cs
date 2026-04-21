@@ -1,32 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Sakanak.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Sakanak.DAL.Configurations
+namespace Sakanak.DAL.Configurations;
+
+public class AdminConfiguration : IEntityTypeConfiguration<Admin>
 {
-    public class AdminConfiguration : IEntityTypeConfiguration<Admin>
+    public void Configure(EntityTypeBuilder<Admin> builder)
     {
-        public void Configure(EntityTypeBuilder<Admin> builder)
-        {
-            builder.Property(a => a.RoleLevel)
-                .HasConversion<string>()
-                .IsRequired();
+        builder.ToTable("Admins");
 
-            // Relationships
-            builder.HasMany(a => a.VerifiedContracts)
-                .WithOne(c => c.VerifiedByAdmin)
-                .HasForeignKey(c => c.VerifiedByAdminID)
-                .OnDelete(DeleteBehavior.SetNull);
+        builder.Property(e => e.RoleLevel)
+            .HasConversion<string>()
+            .HasMaxLength(50)
+            .IsRequired();
 
-            builder.HasMany(a => a.IssuedPenalties)
-                .WithOne(p => p.IssuedByAdmin)
-                .HasForeignKey(p => p.IssuedByAdminID)
-                .OnDelete(DeleteBehavior.Restrict);
-        }
+        builder.HasIndex(e => e.Email).IsUnique();
+        builder.HasIndex(e => e.RoleLevel);
     }
 }

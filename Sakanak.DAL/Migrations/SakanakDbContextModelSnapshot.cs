@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Sakanak.DAL.Contexts;
+using Sakanak.DAL.Data;
 
 #nullable disable
 
@@ -22,43 +22,30 @@ namespace Sakanak.DAL.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ChatUser", b =>
-                {
-                    b.Property<int>("ChatsChatID")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ParticipantsUserID")
-                        .HasColumnType("int");
-
-                    b.HasKey("ChatsChatID", "ParticipantsUserID");
-
-                    b.HasIndex("ParticipantsUserID");
-
-                    b.ToTable("ChatParticipants", (string)null);
-                });
+            modelBuilder.HasSequence<int>("UserIdSeq");
 
             modelBuilder.Entity("ContractStudent", b =>
                 {
-                    b.Property<int>("ContractsContractID")
+                    b.Property<int>("ContractsContractId")
                         .HasColumnType("int");
 
-                    b.Property<int>("StudentsUserID")
+                    b.Property<int>("StudentsUserId")
                         .HasColumnType("int");
 
-                    b.HasKey("ContractsContractID", "StudentsUserID");
+                    b.HasKey("ContractsContractId", "StudentsUserId");
 
-                    b.HasIndex("StudentsUserID");
+                    b.HasIndex("StudentsUserId");
 
                     b.ToTable("ContractStudents", (string)null);
                 });
 
             modelBuilder.Entity("Sakanak.Domain.Entities.Apartment", b =>
                 {
-                    b.Property<int>("ApartmentID")
+                    b.Property<int>("ApartmentId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ApartmentID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ApartmentId"));
 
                     b.Property<string>("Address")
                         .IsRequired()
@@ -69,15 +56,17 @@ namespace Sakanak.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("AvailableSeats")
-                        .HasColumnType("int");
-
                     b.Property<string>("City")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("LandlordID")
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("LandlordId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("PricePerMonth")
@@ -86,152 +75,151 @@ namespace Sakanak.DAL.Migrations
                     b.Property<int>("TotalSeats")
                         .HasColumnType("int");
 
-                    b.Property<string>("VirtualTourURL")
-                        .IsRequired()
+                    b.Property<string>("VirtualTourUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.HasKey("ApartmentID");
+                    b.HasKey("ApartmentId");
 
-                    b.HasIndex("LandlordID");
+                    b.HasIndex("LandlordId");
+
+                    b.HasIndex("City", "IsActive");
+
+                    b.HasIndex("PricePerMonth", "IsActive");
 
                     b.ToTable("Apartments");
                 });
 
             modelBuilder.Entity("Sakanak.Domain.Entities.ApartmentGroup", b =>
                 {
-                    b.Property<int>("GroupID")
+                    b.Property<int>("GroupId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GroupID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GroupId"));
 
-                    b.Property<int>("ApartmentID")
+                    b.Property<int>("ApartmentId")
                         .HasColumnType("int");
-
-                    b.Property<int>("CurrentMembers")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
 
                     b.Property<string>("GroupStatus")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("MaxMembers")
                         .HasColumnType("int");
 
-                    b.HasKey("GroupID");
+                    b.HasKey("GroupId");
 
-                    b.HasIndex("ApartmentID")
-                        .IsUnique();
+                    b.HasIndex("ApartmentId");
+
+                    b.HasIndex("ApartmentId", "GroupStatus")
+                        .IsUnique()
+                        .HasFilter("[GroupStatus] = 'Open'");
 
                     b.ToTable("ApartmentGroups");
                 });
 
             modelBuilder.Entity("Sakanak.Domain.Entities.Booking", b =>
                 {
-                    b.Property<int>("BookingID")
+                    b.Property<int>("BookingId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookingID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BookingId"));
 
-                    b.Property<int>("ApartmentID")
+                    b.Property<int?>("ApartmentGroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ApartmentId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("BookingDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("RequestedEndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("RequestedStartDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<int>("StudentID")
+                    b.Property<int>("StudentId")
                         .HasColumnType("int");
 
-                    b.HasKey("BookingID");
+                    b.HasKey("BookingId");
 
-                    b.HasIndex("ApartmentID");
+                    b.HasIndex("ApartmentGroupId");
 
-                    b.HasIndex("StudentID");
+                    b.HasIndex("ApartmentId", "Status");
+
+                    b.HasIndex("StudentId", "Status");
 
                     b.ToTable("Bookings");
                 });
 
-            modelBuilder.Entity("Sakanak.Domain.Entities.Chat", b =>
-                {
-                    b.Property<int>("ChatID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ChatID"));
-
-                    b.Property<int?>("ApartmentGroupID")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ChatID");
-
-                    b.HasIndex("ApartmentGroupID")
-                        .IsUnique()
-                        .HasFilter("[ApartmentGroupID] IS NOT NULL");
-
-                    b.ToTable("Chats");
-                });
-
             modelBuilder.Entity("Sakanak.Domain.Entities.Contract", b =>
                 {
-                    b.Property<int>("ContractID")
+                    b.Property<int>("ContractId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ContractID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ContractId"));
 
-                    b.Property<int>("ApartmentID")
+                    b.Property<int>("ApartmentId")
                         .HasColumnType("int");
 
-                    b.Property<string>("ContractStatus")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("BookingId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("LandlordID")
+                    b.Property<int>("LandlordId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("VerifiedByAdminID")
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("VerifiedByAdminId")
                         .HasColumnType("int");
 
-                    b.HasKey("ContractID");
+                    b.HasKey("ContractId");
 
-                    b.HasIndex("ApartmentID")
-                        .IsUnique();
+                    b.HasIndex("BookingId");
 
-                    b.HasIndex("LandlordID");
+                    b.HasIndex("EndDate");
 
-                    b.HasIndex("VerifiedByAdminID");
+                    b.HasIndex("VerifiedByAdminId");
+
+                    b.HasIndex("ApartmentId", "Status");
+
+                    b.HasIndex("LandlordId", "Status");
 
                     b.ToTable("Contracts");
                 });
 
             modelBuilder.Entity("Sakanak.Domain.Entities.LifestyleQuestionnaire", b =>
                 {
-                    b.Property<int>("QuestionnaireID")
+                    b.Property<int>("QuestionnaireId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuestionnaireID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("QuestionnaireId"));
 
                     b.Property<string>("GenderPreference")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("HygieneLevel")
                         .HasColumnType("int");
@@ -244,228 +232,211 @@ namespace Sakanak.DAL.Migrations
 
                     b.Property<string>("SleepSchedule")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("SocialPreference")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<int>("StudentID")
+                    b.Property<int>("StudentId")
                         .HasColumnType("int");
 
                     b.Property<string>("StudyHabits")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("QuestionnaireID");
+                    b.HasKey("QuestionnaireId");
 
-                    b.HasIndex("StudentID")
+                    b.HasIndex("StudentId")
                         .IsUnique();
 
                     b.ToTable("LifestyleQuestionnaires");
                 });
 
-            modelBuilder.Entity("Sakanak.Domain.Entities.Message", b =>
+            modelBuilder.Entity("Sakanak.Domain.Entities.Media", b =>
                 {
-                    b.Property<int>("MessageID")
+                    b.Property<int>("MediaId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MessageID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MediaId"));
 
-                    b.Property<int>("ChatID")
+                    b.Property<int?>("ApartmentId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsRead")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                    b.Property<int?>("ContractId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("MessageText")
+                    b.Property<int>("EntityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EntityType")
                         .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<int>("SenderID")
+                    b.Property<int?>("LandlordUserId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("SentTime")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("MessageID");
-
-                    b.HasIndex("ChatID");
-
-                    b.HasIndex("SenderID");
-
-                    b.ToTable("Messages");
-                });
-
-            modelBuilder.Entity("Sakanak.Domain.Entities.Notification", b =>
-                {
-                    b.Property<int>("NotificationID")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int?>("StudentUserId")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("NotificationID"));
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("Content")
+                    b.Property<string>("Url")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.HasKey("MediaId");
 
-                    b.Property<bool>("IsRead")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                    b.HasIndex("ApartmentId");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.HasIndex("ContractId");
 
-                    b.Property<int>("UserID")
-                        .HasColumnType("int");
+                    b.HasIndex("LandlordUserId");
 
-                    b.HasKey("NotificationID");
+                    b.HasIndex("StudentUserId");
 
-                    b.HasIndex("UserID");
+                    b.HasIndex("EntityType", "EntityId");
 
-                    b.ToTable("Notifications");
+                    b.HasIndex("EntityType", "EntityId", "Type");
+
+                    b.ToTable("Media");
                 });
 
             modelBuilder.Entity("Sakanak.Domain.Entities.Payment", b =>
                 {
-                    b.Property<int>("PaymentID")
+                    b.Property<int>("PaymentId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentId"));
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("ApartmentID")
+                    b.Property<int>("ApartmentId")
                         .HasColumnType("int");
 
-                    b.Property<int>("LandlordID")
+                    b.Property<int?>("ContractId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("PaymentDate")
+                    b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PaymentStatus")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("StudentID")
+                    b.Property<int>("LandlordId")
                         .HasColumnType("int");
 
-                    b.HasKey("PaymentID");
+                    b.Property<DateTime?>("PaymentDate")
+                        .HasColumnType("datetime2");
 
-                    b.HasIndex("LandlordID");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.HasIndex("StudentID");
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PaymentId");
+
+                    b.HasIndex("ApartmentId");
+
+                    b.HasIndex("ContractId");
+
+                    b.HasIndex("DueDate", "Status");
+
+                    b.HasIndex("LandlordId", "Status");
+
+                    b.HasIndex("StudentId", "Status");
 
                     b.ToTable("Payments");
                 });
 
-            modelBuilder.Entity("Sakanak.Domain.Entities.Penalty", b =>
+            modelBuilder.Entity("Sakanak.Domain.Entities.Request", b =>
                 {
-                    b.Property<int>("PenaltyID")
+                    b.Property<int>("RequestId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PenaltyID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RequestId"));
 
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<bool>("IsRevoked")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<DateTime>("IssuedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("IssuedByAdminID")
+                    b.Property<int?>("ApartmentId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("StudentID")
+                    b.Property<int?>("ContractId")
                         .HasColumnType("int");
-
-                    b.HasKey("PenaltyID");
-
-                    b.HasIndex("IssuedByAdminID");
-
-                    b.HasIndex("StudentID");
-
-                    b.ToTable("Penalties");
-                });
-
-            modelBuilder.Entity("Sakanak.Domain.Entities.RoommateRating", b =>
-                {
-                    b.Property<int>("RatingID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RatingID"));
-
-                    b.Property<string>("Comment")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("RatedStudentID")
+                    b.Property<int?>("LandlordId")
                         .HasColumnType("int");
 
-                    b.Property<int>("RaterStudentID")
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime?>("ResolvedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("StudentId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Score")
-                        .HasColumnType("int");
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("RatingID");
+                    b.HasKey("RequestId");
 
-                    b.HasIndex("RatedStudentID");
+                    b.HasIndex("ApartmentId");
 
-                    b.HasIndex("RaterStudentID", "RatedStudentID")
-                        .IsUnique();
+                    b.HasIndex("ContractId");
 
-                    b.ToTable("RoommateRatings");
+                    b.HasIndex("LandlordId", "Status");
+
+                    b.HasIndex("StudentId", "Status");
+
+                    b.HasIndex("Type", "Status");
+
+                    b.ToTable("Requests");
                 });
 
             modelBuilder.Entity("Sakanak.Domain.Entities.User", b =>
                 {
-                    b.Property<int>("UserID")
+                    b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserID"));
+                        .HasColumnType("int")
+                        .HasDefaultValueSql("NEXT VALUE FOR UserIdSeq");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
@@ -477,22 +448,14 @@ namespace Sakanak.DAL.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("UserType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.HasKey("UserId");
 
-                    b.HasKey("UserID");
+                    b.ToTable((string)null);
 
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.ToTable("Users");
-
-                    b.HasDiscriminator<string>("UserType");
-
-                    b.UseTphMappingStrategy();
+                    b.UseTpcMappingStrategy();
                 });
 
             modelBuilder.Entity("Sakanak.Domain.Entities.Admin", b =>
@@ -501,9 +464,15 @@ namespace Sakanak.DAL.Migrations
 
                     b.Property<string>("RoleLevel")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.HasDiscriminator().HasValue("Admin");
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("RoleLevel");
+
+                    b.ToTable("Admins", (string)null);
                 });
 
             modelBuilder.Entity("Sakanak.Domain.Entities.Landlord", b =>
@@ -516,18 +485,21 @@ namespace Sakanak.DAL.Migrations
                         .HasDefaultValue(0);
 
                     b.Property<bool>("VerificationStatus")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                        .HasColumnType("bit");
 
-                    b.HasDiscriminator().HasValue("Landlord");
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("VerificationStatus");
+
+                    b.ToTable("Landlords", (string)null);
                 });
 
             modelBuilder.Entity("Sakanak.Domain.Entities.Student", b =>
                 {
                     b.HasBaseType("Sakanak.Domain.Entities.User");
 
-                    b.Property<int?>("ApartmentGroupID")
+                    b.Property<int?>("ApartmentGroupId")
                         .HasColumnType("int");
 
                     b.Property<string>("Faculty")
@@ -545,37 +517,25 @@ namespace Sakanak.DAL.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.HasIndex("ApartmentGroupID");
+                    b.HasIndex("ApartmentGroupId");
 
-                    b.HasDiscriminator().HasValue("Student");
-                });
+                    b.HasIndex("Email")
+                        .IsUnique();
 
-            modelBuilder.Entity("ChatUser", b =>
-                {
-                    b.HasOne("Sakanak.Domain.Entities.Chat", null)
-                        .WithMany()
-                        .HasForeignKey("ChatsChatID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Sakanak.Domain.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("ParticipantsUserID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.ToTable("Students", (string)null);
                 });
 
             modelBuilder.Entity("ContractStudent", b =>
                 {
                     b.HasOne("Sakanak.Domain.Entities.Contract", null)
                         .WithMany()
-                        .HasForeignKey("ContractsContractID")
+                        .HasForeignKey("ContractsContractId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Sakanak.Domain.Entities.Student", null)
                         .WithMany()
-                        .HasForeignKey("StudentsUserID")
+                        .HasForeignKey("StudentsUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -584,7 +544,7 @@ namespace Sakanak.DAL.Migrations
                 {
                     b.HasOne("Sakanak.Domain.Entities.Landlord", "Landlord")
                         .WithMany("Apartments")
-                        .HasForeignKey("LandlordID")
+                        .HasForeignKey("LandlordId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -594,9 +554,9 @@ namespace Sakanak.DAL.Migrations
             modelBuilder.Entity("Sakanak.Domain.Entities.ApartmentGroup", b =>
                 {
                     b.HasOne("Sakanak.Domain.Entities.Apartment", "Apartment")
-                        .WithOne("ApartmentGroup")
-                        .HasForeignKey("Sakanak.Domain.Entities.ApartmentGroup", "ApartmentID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .WithMany("ApartmentGroups")
+                        .HasForeignKey("ApartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Apartment");
@@ -604,53 +564,58 @@ namespace Sakanak.DAL.Migrations
 
             modelBuilder.Entity("Sakanak.Domain.Entities.Booking", b =>
                 {
+                    b.HasOne("Sakanak.Domain.Entities.ApartmentGroup", "ApartmentGroup")
+                        .WithMany("Bookings")
+                        .HasForeignKey("ApartmentGroupId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Sakanak.Domain.Entities.Apartment", "Apartment")
                         .WithMany("Bookings")
-                        .HasForeignKey("ApartmentID")
+                        .HasForeignKey("ApartmentId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Sakanak.Domain.Entities.Student", "Student")
                         .WithMany("Bookings")
-                        .HasForeignKey("StudentID")
+                        .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Apartment");
 
-                    b.Navigation("Student");
-                });
-
-            modelBuilder.Entity("Sakanak.Domain.Entities.Chat", b =>
-                {
-                    b.HasOne("Sakanak.Domain.Entities.ApartmentGroup", "ApartmentGroup")
-                        .WithOne("Chat")
-                        .HasForeignKey("Sakanak.Domain.Entities.Chat", "ApartmentGroupID")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.Navigation("ApartmentGroup");
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("Sakanak.Domain.Entities.Contract", b =>
                 {
                     b.HasOne("Sakanak.Domain.Entities.Apartment", "Apartment")
-                        .WithOne("Contract")
-                        .HasForeignKey("Sakanak.Domain.Entities.Contract", "ApartmentID")
+                        .WithMany("Contracts")
+                        .HasForeignKey("ApartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Sakanak.Domain.Entities.Booking", "Booking")
+                        .WithMany("Contracts")
+                        .HasForeignKey("BookingId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Sakanak.Domain.Entities.Landlord", "Landlord")
                         .WithMany("Contracts")
-                        .HasForeignKey("LandlordID")
+                        .HasForeignKey("LandlordId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Sakanak.Domain.Entities.Admin", "VerifiedByAdmin")
                         .WithMany("VerifiedContracts")
-                        .HasForeignKey("VerifiedByAdminID")
+                        .HasForeignKey("VerifiedByAdminId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Apartment");
+
+                    b.Navigation("Booking");
 
                     b.Navigation("Landlord");
 
@@ -660,106 +625,103 @@ namespace Sakanak.DAL.Migrations
             modelBuilder.Entity("Sakanak.Domain.Entities.LifestyleQuestionnaire", b =>
                 {
                     b.HasOne("Sakanak.Domain.Entities.Student", "Student")
-                        .WithOne("LifestyleQuestionnaire")
-                        .HasForeignKey("Sakanak.Domain.Entities.LifestyleQuestionnaire", "StudentID")
+                        .WithOne("Questionnaire")
+                        .HasForeignKey("Sakanak.Domain.Entities.LifestyleQuestionnaire", "StudentId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("Sakanak.Domain.Entities.Message", b =>
+            modelBuilder.Entity("Sakanak.Domain.Entities.Media", b =>
                 {
-                    b.HasOne("Sakanak.Domain.Entities.Chat", "Chat")
-                        .WithMany("Messages")
-                        .HasForeignKey("ChatID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.HasOne("Sakanak.Domain.Entities.Apartment", null)
+                        .WithMany("Media")
+                        .HasForeignKey("ApartmentId");
 
-                    b.HasOne("Sakanak.Domain.Entities.User", "Sender")
-                        .WithMany("SentMessages")
-                        .HasForeignKey("SenderID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.HasOne("Sakanak.Domain.Entities.Contract", null)
+                        .WithMany("Media")
+                        .HasForeignKey("ContractId");
 
-                    b.Navigation("Chat");
+                    b.HasOne("Sakanak.Domain.Entities.Landlord", null)
+                        .WithMany("Media")
+                        .HasForeignKey("LandlordUserId");
 
-                    b.Navigation("Sender");
-                });
-
-            modelBuilder.Entity("Sakanak.Domain.Entities.Notification", b =>
-                {
-                    b.HasOne("Sakanak.Domain.Entities.User", "User")
-                        .WithMany("Notifications")
-                        .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("User");
+                    b.HasOne("Sakanak.Domain.Entities.Student", null)
+                        .WithMany("Media")
+                        .HasForeignKey("StudentUserId");
                 });
 
             modelBuilder.Entity("Sakanak.Domain.Entities.Payment", b =>
                 {
+                    b.HasOne("Sakanak.Domain.Entities.Apartment", "Apartment")
+                        .WithMany()
+                        .HasForeignKey("ApartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Sakanak.Domain.Entities.Contract", "Contract")
+                        .WithMany("Payments")
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Sakanak.Domain.Entities.Landlord", "Landlord")
-                        .WithMany("PaymentsReceived")
-                        .HasForeignKey("LandlordID")
+                        .WithMany("Payments")
+                        .HasForeignKey("LandlordId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Sakanak.Domain.Entities.Student", "Student")
                         .WithMany("Payments")
-                        .HasForeignKey("StudentID")
+                        .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Apartment");
+
+                    b.Navigation("Contract");
 
                     b.Navigation("Landlord");
 
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("Sakanak.Domain.Entities.Penalty", b =>
+            modelBuilder.Entity("Sakanak.Domain.Entities.Request", b =>
                 {
-                    b.HasOne("Sakanak.Domain.Entities.Admin", "IssuedByAdmin")
-                        .WithMany("IssuedPenalties")
-                        .HasForeignKey("IssuedByAdminID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.HasOne("Sakanak.Domain.Entities.Apartment", "Apartment")
+                        .WithMany("Requests")
+                        .HasForeignKey("ApartmentId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Sakanak.Domain.Entities.Contract", "Contract")
+                        .WithMany("Requests")
+                        .HasForeignKey("ContractId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Sakanak.Domain.Entities.Landlord", "Landlord")
+                        .WithMany("Requests")
+                        .HasForeignKey("LandlordId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Sakanak.Domain.Entities.Student", "Student")
-                        .WithMany("Penalties")
-                        .HasForeignKey("StudentID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .WithMany("Requests")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
-                    b.Navigation("IssuedByAdmin");
+                    b.Navigation("Apartment");
+
+                    b.Navigation("Contract");
+
+                    b.Navigation("Landlord");
 
                     b.Navigation("Student");
-                });
-
-            modelBuilder.Entity("Sakanak.Domain.Entities.RoommateRating", b =>
-                {
-                    b.HasOne("Sakanak.Domain.Entities.Student", "RatedStudent")
-                        .WithMany("RatingsReceived")
-                        .HasForeignKey("RatedStudentID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Sakanak.Domain.Entities.Student", "RaterStudent")
-                        .WithMany("RatingsGiven")
-                        .HasForeignKey("RaterStudentID")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("RatedStudent");
-
-                    b.Navigation("RaterStudent");
                 });
 
             modelBuilder.Entity("Sakanak.Domain.Entities.Student", b =>
                 {
                     b.HasOne("Sakanak.Domain.Entities.ApartmentGroup", "ApartmentGroup")
                         .WithMany("Students")
-                        .HasForeignKey("ApartmentGroupID")
+                        .HasForeignKey("ApartmentGroupId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("ApartmentGroup");
@@ -767,36 +729,40 @@ namespace Sakanak.DAL.Migrations
 
             modelBuilder.Entity("Sakanak.Domain.Entities.Apartment", b =>
                 {
-                    b.Navigation("ApartmentGroup");
+                    b.Navigation("ApartmentGroups");
 
                     b.Navigation("Bookings");
 
-                    b.Navigation("Contract");
+                    b.Navigation("Contracts");
+
+                    b.Navigation("Media");
+
+                    b.Navigation("Requests");
                 });
 
             modelBuilder.Entity("Sakanak.Domain.Entities.ApartmentGroup", b =>
                 {
-                    b.Navigation("Chat");
+                    b.Navigation("Bookings");
 
                     b.Navigation("Students");
                 });
 
-            modelBuilder.Entity("Sakanak.Domain.Entities.Chat", b =>
+            modelBuilder.Entity("Sakanak.Domain.Entities.Booking", b =>
                 {
-                    b.Navigation("Messages");
+                    b.Navigation("Contracts");
                 });
 
-            modelBuilder.Entity("Sakanak.Domain.Entities.User", b =>
+            modelBuilder.Entity("Sakanak.Domain.Entities.Contract", b =>
                 {
-                    b.Navigation("Notifications");
+                    b.Navigation("Media");
 
-                    b.Navigation("SentMessages");
+                    b.Navigation("Payments");
+
+                    b.Navigation("Requests");
                 });
 
             modelBuilder.Entity("Sakanak.Domain.Entities.Admin", b =>
                 {
-                    b.Navigation("IssuedPenalties");
-
                     b.Navigation("VerifiedContracts");
                 });
 
@@ -806,22 +772,24 @@ namespace Sakanak.DAL.Migrations
 
                     b.Navigation("Contracts");
 
-                    b.Navigation("PaymentsReceived");
+                    b.Navigation("Media");
+
+                    b.Navigation("Payments");
+
+                    b.Navigation("Requests");
                 });
 
             modelBuilder.Entity("Sakanak.Domain.Entities.Student", b =>
                 {
                     b.Navigation("Bookings");
 
-                    b.Navigation("LifestyleQuestionnaire");
+                    b.Navigation("Media");
 
                     b.Navigation("Payments");
 
-                    b.Navigation("Penalties");
+                    b.Navigation("Questionnaire");
 
-                    b.Navigation("RatingsGiven");
-
-                    b.Navigation("RatingsReceived");
+                    b.Navigation("Requests");
                 });
 #pragma warning restore 612, 618
         }

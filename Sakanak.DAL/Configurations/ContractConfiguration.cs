@@ -1,49 +1,53 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Sakanak.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Sakanak.DAL.Configurations
+namespace Sakanak.DAL.Configurations;
+
+public class ContractConfiguration : IEntityTypeConfiguration<Contract>
 {
-    public class ContractConfiguration : IEntityTypeConfiguration<Contract>
+    public void Configure(EntityTypeBuilder<Contract> builder)
     {
-        public void Configure(EntityTypeBuilder<Contract> builder)
-        {
-            builder.HasKey(c => c.ContractID);
+        builder.HasKey(e => e.ContractId);
 
-            builder.Property(c => c.StartDate)
-                .IsRequired();
+        builder.Property(e => e.StartDate)
+            .IsRequired();
 
-            builder.Property(c => c.EndDate)
-                .IsRequired();
+        builder.Property(e => e.EndDate)
+            .IsRequired();
 
-            builder.Property(c => c.ContractStatus)
-                .HasConversion<string>()
-                .IsRequired();
+        builder.Property(e => e.Status)
+            .HasConversion<string>()
+            .HasMaxLength(50)
+            .IsRequired();
 
-            // Relationships
-            builder.HasOne(c => c.Apartment)
-                .WithOne(a => a.Contract)
-                .HasForeignKey<Contract>(c => c.ApartmentID)
-                .OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(e => e.BookingId);
+        builder.HasIndex(e => new { e.ApartmentId, e.Status });
+        builder.HasIndex(e => new { e.LandlordId, e.Status });
+        builder.HasIndex(e => e.EndDate);
 
-            builder.HasOne(c => c.Landlord)
-                .WithMany(l => l.Contracts)
-                .HasForeignKey(c => c.LandlordID)
-                .OnDelete(DeleteBehavior.Restrict);
+        builder.HasOne(e => e.Booking)
+            .WithMany(e => e.Contracts)
+            .HasForeignKey(e => e.BookingId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne(c => c.VerifiedByAdmin)
-                .WithMany(a => a.VerifiedContracts)
-                .HasForeignKey(c => c.VerifiedByAdminID)
-                .OnDelete(DeleteBehavior.SetNull);
+        builder.HasOne(e => e.Apartment)
+            .WithMany(e => e.Contracts)
+            .HasForeignKey(e => e.ApartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasMany(c => c.Students)
-                .WithMany(s => s.Contracts)
-                .UsingEntity(j => j.ToTable("ContractStudents"));
-        }
+        builder.HasOne(e => e.Landlord)
+            .WithMany(e => e.Contracts)
+            .HasForeignKey(e => e.LandlordId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(e => e.VerifiedByAdmin)
+            .WithMany(e => e.VerifiedContracts)
+            .HasForeignKey(e => e.VerifiedByAdminId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasMany(e => e.Students)
+            .WithMany(e => e.Contracts)
+            .UsingEntity(j => j.ToTable("ContractStudents"));
     }
 }

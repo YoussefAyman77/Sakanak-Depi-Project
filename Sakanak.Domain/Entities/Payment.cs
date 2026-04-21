@@ -1,24 +1,23 @@
-﻿using Sakanak.Domain.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
+using Sakanak.Domain.Enums;
 
-namespace Sakanak.Domain.Entities
+namespace Sakanak.Domain.Entities;
+
+public class Payment
 {
-    public class Payment
-    {
-        public int PaymentID { get; set; }
-        public int StudentID { get; set; }
-        public int LandlordID { get; set; }
-        public int ApartmentID { get; set; }
-        public decimal Amount { get; set; }
-        public DateTime PaymentDate { get; set; }
-        public PaymentStatus PaymentStatus { get; set; }
-
-        // Navigation Properties
-        public Student Student { get; set; } = null!;
-        public Landlord Landlord { get; set; } = null!;
-    }
+    public int PaymentId { get; set; }
+    public int StudentId { get; set; }
+    public int LandlordId { get; set; }
+    public int ApartmentId { get; set; }
+    public int? ContractId { get; set; }
+    public decimal Amount { get; set; }
+    public DateTime DueDate { get; set; }
+    public DateTime? PaymentDate { get; set; }
+    public PaymentStatus Status { get; set; }
+    [NotMapped]
+    public bool IsLate => DateTime.UtcNow > DueDate && Status != PaymentStatus.Paid;
+    public Student Student { get; set; } = null!;
+    public Landlord Landlord { get; set; } = null!;
+    public Apartment Apartment { get; set; } = null!;
+    public Contract? Contract { get; set; }
 }
