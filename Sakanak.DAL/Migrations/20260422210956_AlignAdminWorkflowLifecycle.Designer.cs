@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sakanak.DAL.Data;
 
@@ -11,9 +12,11 @@ using Sakanak.DAL.Data;
 namespace Sakanak.DAL.Migrations
 {
     [DbContext(typeof(SakanakDbContext))]
-    partial class SakanakDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260422210956_AlignAdminWorkflowLifecycle")]
+    partial class AlignAdminWorkflowLifecycle
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

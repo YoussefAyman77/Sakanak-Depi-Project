@@ -9,7 +9,7 @@ public class Payment
     public int StudentId { get; set; }
     public int LandlordId { get; set; }
     public int ApartmentId { get; set; }
-    public int? ContractId { get; set; }
+    public int ContractId { get; set; }
     public decimal Amount { get; set; }
     public DateTime DueDate { get; set; }
     public DateTime? PaymentDate { get; set; }
@@ -19,5 +19,5 @@ public class Payment
     public Student Student { get; set; } = null!;
     public Landlord Landlord { get; set; } = null!;
     public Apartment Apartment { get; set; } = null!;
-    public Contract? Contract { get; set; }
+    public Contract Contract { get; set; } = null!;
 }

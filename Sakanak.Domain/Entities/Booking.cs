@@ -15,5 +15,5 @@ public class Booking
     public Student Student { get; set; } = null!;
     public Apartment Apartment { get; set; } = null!;
     public ApartmentGroup? ApartmentGroup { get; set; }
-    public ICollection<Contract> Contracts { get; set; } = new List<Contract>();
+    public Contract? Contract { get; set; }
 }

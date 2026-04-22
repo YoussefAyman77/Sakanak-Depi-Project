@@ -3,7 +3,7 @@ namespace Sakanak.Domain.Enums;
 public enum BookingStatus
 {
     Pending,
-    Confirmed,
+    Accepted,
     Rejected,
     Cancelled
 }

@@ -17,6 +17,7 @@ public interface IContractRepository
     Task<IEnumerable<Contract>> GetByApartmentIdAsync(int apartmentId);
     Task<IEnumerable<Contract>> GetByStatusAsync(ContractStatus status);
     Task<IEnumerable<Contract>> GetPendingApprovalContractsAsync();
+    Task<IEnumerable<Contract>> GetApprovedContractsAsync();
     Task<IEnumerable<Contract>> GetActiveContractsAsync();
     Task<Contract?> GetContractWithPaymentsAsync(int contractId);
     Task<Contract?> GetByBookingIdAsync(int bookingId);

@@ -16,19 +16,29 @@ public class ContractConfiguration : IEntityTypeConfiguration<Contract>
         builder.Property(e => e.EndDate)
             .IsRequired();
 
+        builder.Property(e => e.SubmittedAt)
+            .IsRequired();
+
         builder.Property(e => e.Status)
             .HasConversion<string>()
             .HasMaxLength(50)
             .IsRequired();
 
-        builder.HasIndex(e => e.BookingId);
+        builder.HasIndex(e => e.BookingId)
+            .IsUnique();
+        builder.HasIndex(e => new { e.StudentId, e.Status });
         builder.HasIndex(e => new { e.ApartmentId, e.Status });
         builder.HasIndex(e => new { e.LandlordId, e.Status });
         builder.HasIndex(e => e.EndDate);
 
         builder.HasOne(e => e.Booking)
+            .WithOne(e => e.Contract)
+            .HasForeignKey<Contract>(e => e.BookingId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(e => e.Student)
             .WithMany(e => e.Contracts)
-            .HasForeignKey(e => e.BookingId)
+            .HasForeignKey(e => e.StudentId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(e => e.Apartment)
@@ -45,9 +55,5 @@ public class ContractConfiguration : IEntityTypeConfiguration<Contract>
             .WithMany(e => e.VerifiedContracts)
             .HasForeignKey(e => e.VerifiedByAdminId)
             .OnDelete(DeleteBehavior.SetNull);
-
-        builder.HasMany(e => e.Students)
-            .WithMany(e => e.Contracts)
-            .UsingEntity(j => j.ToTable("ContractStudents"));
     }
 }

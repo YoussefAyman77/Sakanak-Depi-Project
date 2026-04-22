@@ -12,5 +12,4 @@ public class Student : User
     public ICollection<Payment> Payments { get; set; } = new List<Payment>();
     public LifestyleQuestionnaire? Questionnaire { get; set; }
     public ICollection<Media> Media { get; set; } = new List<Media>();
-    public ICollection<Request> Requests { get; set; } = new List<Request>();
 }

@@ -13,7 +13,7 @@ public class ContractRepository : RepositoryBase<Contract>, IContractRepository
     }
 
     public async Task<IEnumerable<Contract>> GetByStudentIdAsync(int studentId)
-        => await DbSet.Where(e => e.Students.Any(s => s.UserId == studentId)).ToListAsync();
+        => await DbSet.Where(e => e.StudentId == studentId).ToListAsync();
 
     public async Task<IEnumerable<Contract>> GetByApartmentIdAsync(int apartmentId)
         => await DbSet.Where(e => e.ApartmentId == apartmentId).ToListAsync();
@@ -24,13 +24,15 @@ public class ContractRepository : RepositoryBase<Contract>, IContractRepository
     public async Task<IEnumerable<Contract>> GetPendingApprovalContractsAsync()
         => await DbSet.Where(e => e.Status == ContractStatus.PendingApproval).ToListAsync();
 
+    public async Task<IEnumerable<Contract>> GetApprovedContractsAsync()
+        => await DbSet.Where(e => e.Status == ContractStatus.Approved).ToListAsync();
+
     public async Task<IEnumerable<Contract>> GetActiveContractsAsync()
         => await DbSet.Where(e => e.Status == ContractStatus.Active).ToListAsync();
 
     public async Task<Contract?> GetContractWithPaymentsAsync(int contractId)
         => await DbSet
             .Include(e => e.Payments)
-            .Include(e => e.Students)
             .FirstOrDefaultAsync(e => e.ContractId == contractId);
 
     public async Task<Contract?> GetByBookingIdAsync(int bookingId)

@@ -4,6 +4,7 @@ public enum ContractStatus
 {
     Draft,
     PendingApproval,
+    Approved,
     Active,
     Rejected,
     Expired,
