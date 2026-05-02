@@ -1,11 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <ItemGroup>
-    <ProjectReference Include="..\Sakanak.BLL\Sakanak.BLL.csproj" />
-    <ProjectReference Include="..\Sakanak.DAL\Sakanak.DAL.csproj" />
-    <ProjectReference Include="..\Sakanak.Domain\Sakanak.Domain.csproj" />
-  </ItemGroup>
-
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
